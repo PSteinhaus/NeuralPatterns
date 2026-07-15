@@ -20,12 +20,20 @@
 <script>
 
 import IsMobile from '../../js/ismobile'
+import fileList from '../../assets/settings/_file_list.json'
+
+const configs = import.meta.glob(
+    '../../assets/settings/*.json',
+    {
+        eager: true,
+        import: 'default'
+    }
+);
 
 export default {
-    name: 'SaveOptions',
+    name: 'LoadOptions',
     data() {
-        let filelist = require('../../assets/settings/_file_list.json');
-        let options = JSON.parse(JSON.stringify(filelist)); // deep copy, will modify
+        let options = JSON.parse(JSON.stringify(fileList)); // deep copy, will modify
         if (!IsMobile)
             options.unshift(
             {
@@ -46,7 +54,7 @@ export default {
         select() {
             this.uploadingCustom = this.selected.isCustom;
             if (!this.uploadingCustom) {
-                let config = require('../../assets/settings/'+this.selected.path);
+                let config = configs[`../../assets/settings/${this.selected.path}`];
                 this.config = JSON.parse(JSON.stringify(config))
                 this.config.filter = this.toFloat32(this.config.filter);
                 this.can_load = true;
@@ -56,7 +64,7 @@ export default {
             }
         },
         uploadFile(e) {
-            let files = e.srcElement.files;
+            let files = e.target.files;
             if (!files.length) return;
             let reader = new FileReader();
             reader.onload = this.loadConfigFromFile;

@@ -25,9 +25,9 @@
 </template>
 
 <script>
-import WikiSection from '../Wiki/WikiSection';
-import ActivationWiki from '../Wiki/ActivationWiki';
-import ConvolutionWiki from '../Wiki/ConvolutionWiki';
+import WikiSection from '../Wiki/WikiSection.vue';
+import ActivationWiki from '../Wiki/ActivationWiki.vue';
+import ConvolutionWiki from '../Wiki/ConvolutionWiki.vue';
 
 export default {
     name: 'About',

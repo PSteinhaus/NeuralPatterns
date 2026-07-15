@@ -38,10 +38,9 @@
 
 <script>
 
-import Vue from 'vue'
 import Utils from '../../js/utils'
 import Controller from '../../js/controller'
-import WikiSection from '../Wiki/WikiSection';
+import WikiSection from '../Wiki/WikiSection.vue';
 import ConvolutionWiki from '../Wiki/ConvolutionWiki.vue';
 
 // const VERTICAL=0, HORIZONTAL=1; //commented to avoid lint issues
@@ -55,7 +54,7 @@ export default {
     },
     data() {
         return {
-            filter: {},
+            filter: [],
             min: -1,
             max: 1,
             ver_sym: false,
@@ -159,12 +158,23 @@ export default {
         },
 
         setFilter(f) {
-            // c formats floats to 4 decimals without trailing zeros
-            const c = (i) => { return parseFloat(f[i].toFixed(3)) }
+            const c = (i) => parseFloat(f[i].toFixed(3));
 
-            Vue.set(this.filter, 0, {id:0, vals:[c(0), c(1), c(2)]});
-            Vue.set(this.filter, 1, {id:1, vals:[c(3), c(4), c(5)]});
-            Vue.set(this.filter, 2, {id:2, vals:[c(6), c(7), c(8)]});
+            this.filter[0] = {
+                id: 0,
+                vals: [c(0), c(1), c(2)]
+            };
+
+            this.filter[1] = {
+                id: 1,
+                vals: [c(3), c(4), c(5)]
+            };
+
+            this.filter[2] = {
+                id: 2,
+                vals: [c(6), c(7), c(8)]
+            };
+
             return this.filter;
         },
     }

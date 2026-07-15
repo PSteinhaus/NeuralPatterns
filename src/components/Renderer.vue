@@ -1,16 +1,16 @@
 <template>
 	<div id="canvasContainer">
 		<canvas id="renderCanvas" 
-		width="512" 
+		width="512"
 		height="512"
-		v-on:mouseup="mouseup"
-		v-on:mousemove="mousemove"
-		v-on:mousedown="mousedown"
-		v-on:touchstart="mousedown"
-		v-on:touchend="mouseup"
-		v-on:touchmove="touchmove"
-		v-on:onwheel="onwheel"
-		oncontextmenu="return false;"
+		@mouseup="mouseup"
+		@mousemove="mousemove"
+		@mousedown="mousedown"
+		@touchstart="mousedown"
+		@touchend="mouseup"
+		@touchmove.prevent="touchmove"
+		@wheel.prevent="onwheel"
+		@contextmenu.prevent
 		></canvas>
 	</div>
 </template>
@@ -38,7 +38,6 @@ export default {
 	mounted() {
 		this.canvas = document.getElementById("renderCanvas");
 		Controller.initRenderer(this.canvas);
-		this.canvas.onwheel = this.onwheel;
 	},
 
 	methods: {
@@ -58,20 +57,20 @@ export default {
 		},
 		touchmove(event) {
 			// if (event.targetTouches.length !== 1) return;
-			event.preventDefault(); 
-			this.x = event.targetTouches[0].clientX;
-			this.y = event.targetTouches[0].clientY;
+			const rect = this.canvas.getBoundingClientRect();
+
+			this.x = event.targetTouches[0].clientX - rect.left;
+			this.y = event.targetTouches[0].clientY - rect.top;
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, true);
 		},
 
 		onwheel(e) {
-			e.preventDefault();
-			let canvas = this.canvas;
+			const canvas = this.canvas;
 			this.x = e.offsetX;
 			this.y = e.offsetY;
-			let sign = -Math.sign(e.deltaY);
-			let new_scale = Math.max(1, this.scale+(sign));
+			const sign = -Math.sign(e.deltaY);
+			const new_scale = Math.max(1, this.scale+(sign));
 			// let calculated = canvas.currentStyle || window.getComputedStyle(p);
 			// console.log(calculated.marginTop)
 			// console.log(canvas.style)//.style('marginTop'))
@@ -80,8 +79,8 @@ export default {
 				this.setPixelated(true);
 				if (sign == 1) {
 					// If we're zooming in, zoom towards the mouse is (keep mouse in same location after zoom)
-					let half_w = Math.floor(this.canvas.width/2);
-					let half_h = Math.floor(this.canvas.height/2);
+					const half_w = Math.floor(this.canvas.width/2);
+					const half_h = Math.floor(this.canvas.height/2);
 					// let prev_scale = this.scale-1;
 					// this.left += ((half_w-this.left/prev_scale)*prev_scale - this.x);
 					// this.top += ((half_h-this.top/prev_scale)*prev_scale - this.y);

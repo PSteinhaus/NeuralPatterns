@@ -3,10 +3,12 @@
         <div id='mask'></div>
         <div id='box'>
             <div id='header'>
-                {{this.title}}
+                {{ title }}
                 <button id="close-btn" v-on:click="close"><i class="fa fa-times" ></i></button>
             </div>
-            <slot id='content'></slot>
+            <div id="content">
+                <slot></slot>
+            </div>
         </div>
     </div>
 

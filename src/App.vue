@@ -26,8 +26,6 @@ import LoadOptions from './components/Options/LoadOptions.vue'
 
 import FooterMessage from './components/FooterMessage.vue'
 
-document.title = "Neural Patterns";
-
 export default {
 	name: 'App',
 	components: {
@@ -37,6 +35,9 @@ export default {
 		SaveOptions,
 		LoadOptions,
 		FooterMessage
+	},
+	mounted() {
+		document.title = "Neural Patterns";
 	},
 	data() {
 		return {

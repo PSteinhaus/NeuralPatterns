@@ -1,11 +1,7 @@
 <template>
 	<div>
-		<codemirror v-model='code' ref='editor' :options="{
-			viewportMargin: Infinity,
-			theme: 'glsl',
-			mode: 'glsl',
-		}"></codemirror>
-		<div id='error'> {{this.error}} </div>
+		<GLSLEditor v-model="code" ref="editor"/>
+		<div id='error'> {{ error }} </div>
 		<div id='dropdown'>
 				Activation Functions: <select v-model="selected" @change="select()">
 				<option v-for="(activation, i) in activations "
@@ -20,49 +16,30 @@
 </template>
 
 <script>
-import WikiSection from '../Wiki/WikiSection';
-import ActivationWiki from '../Wiki/ActivationWiki';
+import WikiSection from '../Wiki/WikiSection.vue';
+import ActivationWiki from '../Wiki/ActivationWiki.vue';
 
 import Controller from '../../js/controller';
-import { codemirror } from 'vue-codemirror-lite';
-var CodeMirror = require('codemirror/lib/codemirror.js');
-require('./glslmode')(CodeMirror);
+import GLSLEditor from './GLSLEditor.vue';
 
-// have to require it for commenting to work. idk why
-let toggleComment = require('codemirror/addon/comment/comment.js');
-toggleComment // using it so linting doesn't get mad
-function toggleGLSLComment(cm) {
-	cm.toggleComment({
-		indent: true,
-		lineComment: '//',
-	});
-}
+import activationList from '../../assets/activations.json';
 
 export default {
 	name: 'ActivationSettings',
 	components: {
-		codemirror,
+		GLSLEditor,
 		ActivationWiki,
 		WikiSection
 	},
-	mounted() {
-		this.$refs.editor.editor.setOption('extraKeys', {
-			'Cmd-/': toggleGLSLComment,
-			'Ctrl-/': toggleGLSLComment
-		});
-		setTimeout(()=>{
-			this.$refs.editor.editor.refresh();
-		}, 1000);
-	},
 	data() {
-		let activations = require('../../assets/activations.json');
-        activations = JSON.parse(JSON.stringify(activations)); // deep copy, will modify
+		const activations = structuredClone(activationList); // deep copy, will modify
 		return {
 			code: Controller.activationSource,
 			error: '',
 			selected: activations[0],
 			activations,
 			ignore_change: false,
+			pendingSetCode: null,
 		}
 	},
 
@@ -82,7 +59,7 @@ export default {
 
 		select() {
 			this.ignore_change = true;
-			this.code = JSON.parse(JSON.stringify(this.selected.code));
+			this.code = structuredClone(this.selected.code);
 		}
 	},
 

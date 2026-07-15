@@ -4,7 +4,7 @@
         Randomize color on load: <input type='checkbox' v-model='randomcolor'>
         <br><br>
         <button v-on:click="save">Save and Download</button>
-        <a id="download-el" style="display: none;"></a>
+        <a ref="downloadLink" style="display: none"></a>
     </div>
 </template>
 
@@ -38,11 +38,20 @@ export default {
             config["persistent"] = Controller.renderer.persistent;
             config["skip_frames"] = Controller.renderer.skip_frames;
 
-            let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
-            let downloadEl = document.getElementById('download-el');
-            downloadEl.setAttribute("href", data);
-            downloadEl.setAttribute("download", this.filename+".json");
-            downloadEl.click();
+            const blob = new Blob(
+                [JSON.stringify(config, null, 2)],
+                { type: "application/json" }
+            );
+
+            const url = URL.createObjectURL(blob);
+            const link = this.$refs.downloadLink;
+
+            link.href = url;
+            link.download = `${this.filename}.json`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+
             this.$emit('close');
         },
     }

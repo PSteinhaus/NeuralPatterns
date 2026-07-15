@@ -1,9 +1,9 @@
 <template>
     <div class="accordion-item">
         <div class='noselect' id='title-box' v-on:click="select">
-            <b>{{this.title}}</b>
+            <b>{{ title }}</b>
             <b class='noselect' id='min-button'>
-                <i class="fa fa-minus" v-if=is_open></i>
+                <i class="fa fa-minus" v-if="is_open"></i>
                 <i class="fa fa-plus" v-else></i>
             </b>
         </div>

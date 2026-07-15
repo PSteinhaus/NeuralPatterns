@@ -13,10 +13,10 @@
                 <AccordionItem title='Restart Options'>
                     <StateSettings ref='stateSettings'/>
                 </AccordionItem>
-                <AccordionItem title='Filter' :start_open=true>
+                <AccordionItem title='Filter' :start_open="true">
                     <FilterSettings ref='filterSettings'/>
                 </AccordionItem>
-                <AccordionItem title='Activation' :start_open=true>
+                <AccordionItem title='Activation' :start_open="true">
                     <ActivationSettings ref='activationSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Display'> 
@@ -25,10 +25,10 @@
             </div>
             <div id='footer'>
                 <button id='pause-btn' v-on:click="pauseToggle()" title='Pause/Play. Hotkey: Spacebar'>
-                    <i class="fa fa-pause" v-if=is_playing></i>
+                    <i class="fa fa-pause" v-if="is_playing"></i>
                     <i class="fa fa-play" v-else></i>
                 </button>
-                <button id='step-btn' v-on:click="step()" v-if=!is_playing title='Step the simulation once. Hotkey: A'>
+                <button id='step-btn' v-on:click="step()" v-if="!is_playing" title='Step the simulation once. Hotkey: A'>
                     <i class="fa fa-step-forward"></i>
                 </button>
                 <button id='randomize-btn' v-on:click="randomize()" title='Randomize filter and color. Hotkey: F'>Randomize</button>
@@ -54,13 +54,12 @@ import Utils from '../js/utils'
 import Controller from '../js/controller'
 import IsMobile from '../js/ismobile'
 
-import AccordionItem from './AccordionSettings/AccordionItem'
-import About from './AccordionSettings/About'
-import StateSettings from './AccordionSettings/StateSettings'
-import FilterSettings from './AccordionSettings/FilterSettings'
-import DisplaySettings from './AccordionSettings/DisplaySettings'
-import ActivationSettings from './AccordionSettings/ActivationSettings'
-
+import AccordionItem from './AccordionSettings/AccordionItem.vue'
+import About from './AccordionSettings/About.vue'
+import StateSettings from './AccordionSettings/StateSettings.vue'
+import FilterSettings from './AccordionSettings/FilterSettings.vue'
+import DisplaySettings from './AccordionSettings/DisplaySettings.vue'
+import ActivationSettings from './AccordionSettings/ActivationSettings.vue'
 
 export default {
     name: 'Settings',
@@ -82,9 +81,15 @@ export default {
         }
     },
     mounted() {
-        document.body.onkeyup = (e) => {
-        let focused = document.activeElement.tagName;
-        if (focused !== "INPUT" && focused !== "TEXTAREA") {
+        window.addEventListener("keyup", this.onKeyUp);
+    },
+    beforeUnmount() {
+        window.removeEventListener("keyup", this.onKeyUp);
+    },
+    methods: {
+        onKeyUp(e) {
+            let focused = document.activeElement.tagName;
+            if (focused !== "INPUT" && focused !== "TEXTAREA") {
                 switch (e.key.toLowerCase()) {
                     case(' '): {
                         this.pauseToggle();
@@ -115,8 +120,10 @@ export default {
                     }
                 }
             }
-        }
+        },
     },
+    methods: {
+        },
     methods: {
         pauseToggle() {
             Controller.pauseToggle();
