@@ -18,6 +18,29 @@ class Renderer {
 		this.frame_time = 1000/FPS;
 	}
 
+	initGeometry() {
+		const gl = this.gl;
+	
+		/*==========Defining and storing the geometry=======*/
+		
+		const vertices = new Float32Array([
+			-1.0, -1.0,
+			 1.0, -1.0,
+			-1.0,  1.0,
+	
+			-1.0,  1.0,
+			 1.0, -1.0,
+			 1.0,  1.0
+		]);
+	
+		this.size = vertices.length / 2;
+	
+		this.vertexBuffer = gl.createBuffer();
+	
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+	}
+
 	compileShaders(vertexSource, fragSource, activationSource=undefined) {
 		this.vertexSource = vertexSource; // saved without string replacements
 		this.fragSource = fragSource;
@@ -48,8 +71,8 @@ class Renderer {
 
 		// Create a shader program object to store
 		// the combined shader program
+		const oldProgram = this.shader;
 		let shaderProgram = gl.createProgram();
-		this.shader = shaderProgram;
 
 		// Attach a vertex shader
 		gl.attachShader(shaderProgram, vertShader); 
@@ -63,6 +86,8 @@ class Renderer {
 		// Use the combined shader program object
 		gl.useProgram(shaderProgram);
 
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+
 		if(gl.getShaderInfoLog(fragShader)){
 			// console.error("FRAGMENT SHADER ERROR:", gl.getShaderInfoLog(fragShader));
 			return gl.getShaderInfoLog(fragShader);
@@ -73,26 +98,18 @@ class Renderer {
 		if(gl.getProgramInfoLog(shaderProgram)){
 			console.error("SHADER PROGRAM ERROR:", gl.getProgramInfoLog(shaderProgram));
 		}
-		let vertexBuffer = gl.createBuffer();
 
-		/*==========Defining and storing the geometry=======*/
+		this.shader = shaderProgram;
+		// Clean up old shader
+		if (oldProgram) {
+			gl.deleteProgram(this.shader);
+		}
 
-		let vertices = [
-			-1.0, -1.0,
-			1.0, -1.0,
-			-1.0,  1.0,
-			-1.0,  1.0,
-			1.0, -1.0,
-			1.0,  1.0
-		];
-
-		this.size = ~~(vertices.length/2);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		// cleanup (not needed anymore after linking)
+		gl.detachShader(shaderProgram, vertShader);
+		gl.detachShader(shaderProgram, fragShader);
+		gl.deleteShader(vertShader);
+		gl.deleteShader(fragShader);
 
 		// Get the attribute location
 		let coord = gl.getAttribLocation(shaderProgram, "coordinates");
@@ -131,6 +148,9 @@ class Renderer {
 	}
 
 	setState(startState) {
+		// First some clean-up
+		this.destroyState();
+
 		let gl = this.gl;
 		
 		this.stateTexture = gl.createTexture();
@@ -170,6 +190,35 @@ class Renderer {
 		gl.bindTexture(gl.TEXTURE_2D, this.stateTexture);
 		
 		this.updateDisplay();
+	}
+
+	destroyState() {
+		const gl = this.gl;
+	
+		if (this.stateTexture) {
+			gl.deleteTexture(this.stateTexture);
+			this.stateTexture = null;
+		}
+	
+		if (this.txa) {
+			gl.deleteTexture(this.txa);
+			this.txa = null;
+		}
+	
+		if (this.txb) {
+			gl.deleteTexture(this.txb);
+			this.txb = null;
+		}
+	
+		if (this.fba) {
+			gl.deleteFramebuffer(this.fba);
+			this.fba = null;
+		}
+	
+		if (this.fbb) {
+			gl.deleteFramebuffer(this.fbb);
+			this.fbb = null;
+		}
 	}
 
 	setActivationSource(activationSource) {
@@ -225,18 +274,15 @@ class Renderer {
 	}
 
 	render(){
-		let start = Date.now();
+		let start = performance.now();
 		this.updateState()
 		if (this.skip_frames) {
 			this.updateState();
-			this.updateState();
-			this.updateState();
-
 		}
 
 		this.updateDisplay();
 
-		let compute_time = Date.now() - start;
+		let compute_time = performance.now() - start;
 
 		if(this.running){
 			// this.updaterequest = window.requestAnimationFrame(()=>{this.render();});

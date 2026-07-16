@@ -19,6 +19,7 @@ const Controller = {
 
     initRenderer(canvas) {
         let renderer = new Renderer(canvas);
+        renderer.initGeometry();
         renderer.setActivationSource(this.activationSource);
         renderer.setKernel(this.filter);
         renderer.compileShaders(Shaders.vertexShader, Shaders.fragmentShader);

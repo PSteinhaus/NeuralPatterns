@@ -37,6 +37,16 @@
           editor.setValue(value);
         }
       };
+
+      const refresh = () => editor?.refresh();
+  
+      expose({
+        get editor() {
+            return editor;
+        },
+        refresh,
+        setValue
+      });
   
       onMounted(() => {
         editor = CodeMirror.fromTextArea(textarea.value, {
@@ -57,19 +67,13 @@
           emit("update:modelValue", editor.getValue());
         });
   
-        expose({
-          editor,
-          refresh() {
-            editor.refresh();
-          },
-          setValue
-        });
-  
         // CodeMirror sometimes calculates the size incorrectly
         // immediately after creation.
-        setTimeout(() => {
-          editor.refresh();
-        }, 100);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+              editor.refresh();
+          });
+        });
       });
   
       onBeforeUnmount(() => {
@@ -91,7 +95,7 @@
       };
     }
   };
-  
+
   
   function toggleGLSLComment(cm) {
     cm.toggleComment({
@@ -104,8 +108,12 @@
   <style>
   .CodeMirror {
     height: auto;
-    min-height: 150px;
+    min-height: 40px;
     text-align: left;
     font-family: Consolas, "SourceCodePro-Medium", Monaco, monospace;
+  }
+
+  .CodeMirror-scroll {
+    min-height: 40px;
   }
   </style>

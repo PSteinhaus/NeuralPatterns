@@ -16,7 +16,7 @@
                 <AccordionItem title='Filter' :start_open="true">
                     <FilterSettings ref='filterSettings'/>
                 </AccordionItem>
-                <AccordionItem title='Activation' :start_open="true">
+                <AccordionItem title='Activation' :start_open="true" @opened="activationSettings?.refresh()">
                     <ActivationSettings ref='activationSettings'/>
                 </AccordionItem>
                 <AccordionItem title='Display'> 
@@ -179,6 +179,7 @@ export default {
         },
         setOpen(open) {
             this.panel_open=open;
+            setTimeout(() => this.$refs.activationSettings?.refreshEditor(), 100)
         },
     }
 }

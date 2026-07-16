@@ -42,7 +42,6 @@ export default {
 			pendingSetCode: null,
 		}
 	},
-
 	methods: {
 		parseError(error) {
 			if (error) {
@@ -60,7 +59,11 @@ export default {
 		select() {
 			this.ignore_change = true;
 			this.code = structuredClone(this.selected.code);
-		}
+		},
+
+		refreshEditor() {
+			this.$refs.editor.refresh();
+		},
 	},
 
 	watch: {

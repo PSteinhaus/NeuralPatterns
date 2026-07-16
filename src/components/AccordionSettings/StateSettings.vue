@@ -3,7 +3,7 @@
         <button  v-for="val in reset_types" :key="val.type" 
             type='button'
             :title="val.tooltip"
-            v-bind:class="{selected: selected_type === val.type}"
+            :class="{selected: selected_type === val.type}"
             v-on:click="reset(val.type)">
                 {{val.title}}
         </button>

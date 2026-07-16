@@ -22,9 +22,16 @@ export default {
             is_open: this.start_open,
         }
     },
+    emits: [ "opened" ],
     props: {
         title: String,
         start_open: Boolean,
+    },
+    watch: {
+        is_open(open) {
+            if (open)
+                this.$emit("opened");
+        }
     },
     methods: {
         select() {
