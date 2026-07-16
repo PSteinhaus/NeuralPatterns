@@ -6,9 +6,9 @@
 		@mouseup="mouseup"
 		@mousemove="mousemove"
 		@mousedown="mousedown"
-		@touchstart="mousedown"
-		@touchend="mouseup"
-		@touchmove.prevent="touchmove"
+		@touchstart="touchstart"
+		@touchend="touchend"
+		@touchmove="touchmove"
 		@wheel.prevent="onwheel"
 		@contextmenu.prevent
 		></canvas>
@@ -31,13 +31,24 @@ export default {
 			y: 0,
 			top: 0,
 			left: 0,
-			pixelated: false
+			pixelated: false,
+			pinching: false
 		} 
 	},
 
 	mounted() {
 		this.canvas = document.getElementById("renderCanvas");
 		Controller.initRenderer(this.canvas);
+
+		// for watching mobile pinch based zooming, in order to switch to pixelated mode
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener("resize", this.onViewportZoom);
+		}
+	},
+	beforeUnmount() {
+		if (window.visualViewport) {
+			window.visualViewport.removeEventListener("resize", this.onViewportZoom);
+		}
 	},
 
 	methods: {
@@ -55,14 +66,48 @@ export default {
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, this.left_click);
 		},
-		touchmove(event) {
-			// if (event.targetTouches.length !== 1) return;
+		touchstart(event) {
+			if (event.touches.length === 2) {
+				this.mouse_down = false;
+				this.pinching = true;
+				return;
+			}
+
+			if (event.touches.length !== 1)
+				return;
+
+			this.pinching = false;
+			this.mouse_down = true;
+
 			const rect = this.canvas.getBoundingClientRect();
 
-			this.x = event.targetTouches[0].clientX - rect.left;
-			this.y = event.targetTouches[0].clientY - rect.top;
+			this.x = event.touches[0].clientX - rect.left;
+			this.y = event.touches[0].clientY - rect.top;
+
+			Controller.renderer.poke(this.x, this.y, true);
+		},
+		touchmove(event) {
+			if (this.pinching)
+				return;
+
+			if (event.touches.length !== 1)
+				return;
+
+			event.preventDefault();
+
+			const rect = this.canvas.getBoundingClientRect();
+
+			this.x = event.touches[0].clientX - rect.left;
+			this.y = event.touches[0].clientY - rect.top;
+
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, true);
+		},
+		touchend(event) {
+			if (event.touches.length === 0) {
+				this.mouse_down = false;
+				this.pinching = false;
+			}
 		},
 
 		onwheel(e) {
@@ -111,6 +156,12 @@ export default {
 			canvas.style.setProperty('left', `${this.left}px`);
 			canvas.style.setProperty('top', `${this.top}px`);
 				
+		},
+
+		onViewportZoom() {
+			const zoomScale = window.visualViewport.scale;
+
+			this.setPixelated(zoomScale > 1.);
 		},
 
 		clamp(num, min, max) { // unused, could be useful
