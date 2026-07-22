@@ -58,11 +58,11 @@ export default {
 		mousedown(event) {
 			this.mouse_down = true;
 			this.left_click = event.button === 0;
-			Controller.renderer.poke(event.offsetX, event.offsetY, this.left_click);
+			this.updateCanvasCoords(event.clientX, event.clientY);
+			Controller.renderer.poke(this.x, this.y, this.left_click);
 		},
 		mousemove(event) { 
-			this.x = event.offsetX;
-			this.y = event.offsetY;
+			this.updateCanvasCoords(event.clientX, event.clientY);
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, this.left_click);
 		},
@@ -79,11 +79,10 @@ export default {
 			this.pinching = false;
 			this.mouse_down = true;
 
-			const rect = this.canvas.getBoundingClientRect();
-
-			this.x = event.touches[0].clientX - rect.left;
-			this.y = event.touches[0].clientY - rect.top;
-
+			this.updateCanvasCoords(
+				event.touches[0].clientX,
+				event.touches[0].clientY
+			);
 			Controller.renderer.poke(this.x, this.y, true);
 		},
 		touchmove(event) {
@@ -95,10 +94,10 @@ export default {
 
 			event.preventDefault();
 
-			const rect = this.canvas.getBoundingClientRect();
-
-			this.x = event.touches[0].clientX - rect.left;
-			this.y = event.touches[0].clientY - rect.top;
+			this.updateCanvasCoords(
+				event.touches[0].clientX,
+				event.touches[0].clientY
+			);
 
 			if (this.mouse_down)
 				Controller.renderer.poke(this.x, this.y, true);
@@ -109,6 +108,14 @@ export default {
 				this.pinching = false;
 			}
 		},
+
+		updateCanvasCoords(clientX, clientY) {
+			const rect = this.canvas.getBoundingClientRect();
+
+			this.x = (clientX - rect.left) * this.canvas.width / rect.width;
+			this.y = (clientY - rect.top) * this.canvas.height / rect.height;
+		},
+
 
 		onwheel(e) {
 			const canvas = this.canvas;
@@ -200,4 +207,5 @@ export default {
 	right: 0;
 	z-index: 0; */
 }
+
 </style>

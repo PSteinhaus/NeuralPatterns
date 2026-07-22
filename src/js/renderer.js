@@ -84,7 +84,12 @@ class Renderer {
 		gl.linkProgram(shaderProgram);
 
 		// Use the combined shader program object
+		const imageLoc = gl.getUniformLocation(shaderProgram, "u_image");
+
 		gl.useProgram(shaderProgram);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.uniform1i(imageLoc, 0);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 
@@ -102,7 +107,7 @@ class Renderer {
 		this.shader = shaderProgram;
 		// Clean up old shader
 		if (oldProgram) {
-			gl.deleteProgram(this.shader);
+			gl.deleteProgram(oldProgram);
 		}
 
 		// cleanup (not needed anymore after linking)
@@ -236,6 +241,14 @@ class Renderer {
 
 	setKernel(kernel) {
 		this.kernel = kernel;
+	}
+
+	setSkipFrames(skip) {
+		this.skip_frames = skip;
+	}
+
+	setPersistant(persistant) {
+		this.persistent = persistant;
 	}
 
 	setBrush(size) {

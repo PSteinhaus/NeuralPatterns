@@ -35,8 +35,8 @@ export default {
             
             config["color"] = this.randomcolor ? "random": Controller.color;
             config["bg_color"] = Controller.bgColor;
-            config["persistent"] = Controller.renderer.persistent;
-            config["skip_frames"] = Controller.renderer.skip_frames;
+            config["persistent"] = Controller.persistent;
+            config["skip_frames"] = Controller.skip_frames;
 
             const blob = new Blob(
                 [JSON.stringify(config, null, 2)],

@@ -83,7 +83,7 @@ export default {
         },
 
         setSkipFrames() {
-            Controller.renderer.skip_frames = this.skip_frames;
+            Controller.setSkipFrames(this.skip_frames);
         },
 
         changeSkippedFrame() {

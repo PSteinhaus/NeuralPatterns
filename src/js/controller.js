@@ -3,6 +3,10 @@ import Renderer from '../js/renderer';
 import Shaders from '../js/shaders';
 import IsMobile from '../js/ismobile';
 
+function nearestPow2(n){
+    return Math.pow(2, Math.ceil(Math.log(n) / Math.log(2))); 
+}
+
 const Controller = {
     init() {
         this.filter = Utils.randomKernel();
@@ -10,45 +14,91 @@ const Controller = {
         this.paused = false;
         this.reset_type = 'random';
         this.activationSource = Shaders.defaultActivationSource;
+        this.persistent = false;
+		this.skip_frames = false;
 
         this.bgColor='#000000'
         this.hor_sym=false;
         this.ver_sym=false;
         this.full_sym=false;
+        this.resizeTimer=undefined;
+    },
+
+    restartRenderer(canvas) {
+        if (this.renderer) {
+            this.renderer.stopRender();
+        }
+
+        const renderer = new Renderer(canvas);
+        renderer.gl.viewport(0, 0, renderer.width, renderer.height);
+        renderer.initGeometry();
+        renderer.setSkipFrames(this.skip_frames);
+        renderer.setPersistant(this.persistent); 
+        renderer.setActivationSource(this.activationSource);
+        renderer.setKernel(this.filter);
+        renderer.compileShaders(
+            Shaders.vertexShader,
+            Shaders.fragmentShader
+        );
+        renderer.setColor(this.color);
+
+        renderer.setState(
+            Utils.generateState(
+                renderer.width,
+                renderer.height,
+                this.reset_type
+            )
+        );
+
+        if (!this.paused) {
+            renderer.beginRender();
+        }
+
+        this.renderer = renderer;
     },
 
     initRenderer(canvas) {
-        let renderer = new Renderer(canvas);
-        renderer.initGeometry();
-        renderer.setActivationSource(this.activationSource);
-        renderer.setKernel(this.filter);
-        renderer.compileShaders(Shaders.vertexShader, Shaders.fragmentShader);
-        renderer.setColor(this.color);
-        renderer.setState(Utils.generateState(renderer.width, renderer.height, 'random'));
-        renderer.beginRender();
-        this.renderer = renderer;
+        this.restartRenderer(canvas);
 
-        function nearestPow2(n){
-            return Math.pow(2, Math.ceil(Math.log(n) / Math.log(2))); 
+        this.lastOrientation = window.innerWidth > window.innerHeight ? "landscape" : "portrait";
+
+        window.addEventListener("resize", () => {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(() => {
+                this.reactToResize(canvas);
+            }, 100);
+        });
+        this.reactToResize(canvas);
+    },
+
+    reactToResize(canvas) {
+        if (window.innerWidth === this.renderer.width && window.innerHeight === this.renderer.height)
+            return;
+        this.renderer.stopRender();
+
+        canvas.height = IsMobile ? nearestPow2(window.innerHeight) : window.innerHeight;
+        canvas.width = IsMobile? nearestPow2(window.innerWidth) : window.innerWidth;
+
+        // textures larger than 1024 seem to run into problems on mobile sometimes, so lets limit it to that
+        if (IsMobile && (canvas.width > 1024. || canvas.height > 1024)) {
+            canvas.width /= 2.;
+            canvas.height /= 2.;
         }
 
-        window.onresize = () => {
-			if (window.innerWidth === this.renderer.width && window.innerHeight === this.renderer.height)
-				return;
-			this.renderer.stopRender();
-			canvas.height = IsMobile ? nearestPow2(window.innerHeight) : window.innerHeight;
-			canvas.width = IsMobile? nearestPow2(window.innerWidth) : window.innerWidth;
-            // canvas.height = 256;
-			// canvas.width = 512;
-			this.renderer.height = canvas.height;
-			this.renderer.width = canvas.width;
-			this.renderer.gl.viewport(0, 0, this.renderer.width, this.renderer.height);
-			this.renderer.setState(Utils.generateState(this.renderer.width, this.renderer.height, this.reset_type));
-            if (!this.paused)
-                this.renderer.beginRender();
-		};
-        window.onresize();
-    }, 
+        // additional resize logic for mobile orientation switch
+        if (IsMobile) {
+            this.restartRenderer(canvas);
+            return;
+        }
+
+        // existing resize logic for desktop
+        this.renderer.height = canvas.height;
+        this.renderer.width = canvas.width;
+        this.renderer.gl.viewport(0, 0, this.renderer.width, this.renderer.height);
+        this.renderer.setState(Utils.generateState(this.renderer.width, this.renderer.height, this.reset_type));
+        if (!this.paused)
+            this.renderer.beginRender();
+    },
 
     load(config, reset) {
         this.reset_type = config.reset_type;
@@ -84,6 +134,8 @@ const Controller = {
         this.renderer.setKernel(this.filter);
         this.renderer.setColor(this.color);
         this.renderer.activationSource = this.activationSource;
+        this.renderer.setSkipFrames(this.skip_frames);
+        this.renderer.setPersistant(this.persistent);
         
         if (recompile)
             return this.renderer.recompile();
@@ -102,8 +154,13 @@ const Controller = {
     },
 
     setPersistent(c) {
-        this.renderer.persistent = c;
+        this.persistent = c;
         this.apply(true);
+    },
+
+    setSkipFrames(c) {
+        this.skip_frames = c;
+        this.apply(false);
     },
 
     pauseToggle() {
