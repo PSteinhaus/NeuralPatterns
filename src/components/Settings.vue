@@ -121,10 +121,7 @@ export default {
                 }
             }
         },
-    },
-    methods: {
-        },
-    methods: {
+
         pauseToggle() {
             Controller.pauseToggle();
             this.is_playing = !Controller.paused;
