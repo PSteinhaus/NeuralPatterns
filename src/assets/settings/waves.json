@@ -1,1 +1,25 @@
-{"reset_type":"random","filter":{"0":0.5645999908447266,"1":-0.7159000039100647,"2":0.5645999908447266,"3":-0.7159000039100647,"4":0.6269000172615051,"5":-0.7159000039100647,"6":0.5645999908447266,"7":-0.7159000039100647,"8":0.5645999908447266},"activation":"float activation(float x) {\n  return abs(1.2*x);\n}","color":[0,0.6666666666666666,1],"persistent":false}
+{
+  "reset_type": "random",
+  "filter": {
+    "0": 0.5645999908447266,
+    "1": -0.7159000039100647,
+    "2": 0.5645999908447266,
+    "3": -0.7159000039100647,
+    "4": 0.6269000172615051,
+    "5": -0.7159000039100647,
+    "6": 0.5645999908447266,
+    "7": -0.7159000039100647,
+    "8": 0.5645999908447266
+  },
+  "hor_sym": false,
+  "ver_sym": false,
+  "full_sym": false,
+  "activation": "float interact(float x, float y, float z) {\n  float f = 0.24;\n  return x - abs(y * z) * f;\n}\n\nvec3 activation(float r, float g, float b) {\n  float i_r = interact(r, g, b);\n  float i_g = interact(g, b, r);\n  float i_b = interact(b, r, g);\n  return abs(1.2*vec3(i_r, i_g, i_b));\n}",
+  "color": [
+    0,
+    0.6666666666666666,
+    1
+  ],
+  "bg_color": "#000000",
+  "persistent": false
+}

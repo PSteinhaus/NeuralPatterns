@@ -4,22 +4,22 @@ const Utils = {
 		switch(option) {
 			case 'random': {
 				for(let i = 0; i < height * width*4; i+=4){
-					let r =  Math.floor(255 * Math.random());
-					cells[i] = r;
-					cells[i+1] = r;
-					cells[i+2] = r;
-					cells[i+3] = r;
+					let r = () => Math.floor(255 * Math.random());
+					cells[i] = r();
+					cells[i+1] = r();
+					cells[i+2] = r();
+					cells[i+3] = 255;
 				}
 				break;
             }
 
 			case 'random_bool': {
 				for(let i = 0; i < height * width*4; i+=4){
-					let r =  255 * Math.floor(Math.random()*2);
-					cells[i] = r;
-					cells[i+1] = r;
-					cells[i+2] = r;
-					cells[i+3] = r;
+					let r = () => 255 * Math.floor(Math.random()*2.);
+					cells[i] = r();
+					cells[i+1] = r();
+					cells[i+2] = r();
+					cells[i+3] = 255;
 				}
 				break;
             }

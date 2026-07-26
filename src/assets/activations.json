@@ -1,26 +1,26 @@
 [
     {
         "name" : "Identity (default)",
-        "code" : "float activation(float x) {\n  return x;\n}"
+        "code" : "vec3 activation(float r, float g, float b) {\n  return vec3(r, g, b);\n}"
     },
     {
         "name" : "sin",
-        "code" : "float activation(float x) {\n  return sin(x);\n}"
+        "code" : "vec3 activation(float r, float g, float b) {\n  return sin(vec3(r, g, b));\n}"
     },
     {
         "name" : "power",
-        "code" : "float activation(float x) {\n  return pow(x, 2.);\n}"
+        "code" : "vec3 activation(float r, float g, float b) {\n  r = pow(r, 2.);\n  g = pow(g, 2.);\n  b = pow(b, 2.);\n  return vec3(r, g, b);\n}"
     },
     {
         "name" : "absolute value",
-        "code" : "float activation(float x) {\n  return abs(x);\n}"
+        "code" : "vec3 activation(float r, float g, float b) {\n  return abs(vec3(r, g, b));\n}"
     },
     {
         "name" : "tanh",
-        "code" : "float activation(float x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}"
+        "code" : "float tanh(float x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}\n\nvec3 activation(float r, float g, float b) {\n  r = tanh(r);\n  g = tanh(g);\n  b = tanh(b);\n  return vec3(r, g, b);\n}"
     },
     {
         "name" : "inverse gaussian",
-        "code" : "float activation(float x) {\n  return -1./pow(2., (pow(x, 2.)))+1.;\n}"
+        "code" : "float inv_g(float x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}\n\nvec3 activation(float r, float g, float b) {\n  r = inv_g(r);\n  g = inv_g(g);\n  b = inv_g(b);\n  return vec3(r, g, b);\n}"
     }
 ]

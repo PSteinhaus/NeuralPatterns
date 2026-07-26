@@ -35,31 +35,62 @@ const Shaders = {
             // ( 1, 0) ( 0, 0) (-1, 0)
             // ( 1, 1) ( 0, 1) (-1, 1)
             //                                          pixel( c,  r)   kernel weight[i]
-            float sum = 
-                  texture2D(u_image, getCoords(texCoord, vec2( 1.,-1.))).a * u_kernel[0] 
-                + texture2D(u_image, getCoords(texCoord, vec2( 0.,-1.))).a * u_kernel[1]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1.,-1.))).a * u_kernel[2]
-                + texture2D(u_image, getCoords(texCoord, vec2( 1., 0.))).a * u_kernel[3]
-                + texture2D(u_image, getCoords(texCoord, vec2( 0., 0.))).a * u_kernel[4]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1., 0.))).a * u_kernel[5]
-                + texture2D(u_image, getCoords(texCoord, vec2( 1., 1.))).a * u_kernel[6]
-                + texture2D(u_image, getCoords(texCoord, vec2( 0., 1.))).a * u_kernel[7]
-                + texture2D(u_image, getCoords(texCoord, vec2(-1., 1.))).a * u_kernel[8];
+
+            vec3 c0 = texture2D(u_image, getCoords(texCoord, vec2( 1.,-1.))).rgb;
+            vec3 c1 = texture2D(u_image, getCoords(texCoord, vec2( 0.,-1.))).rgb;
+            vec3 c2 = texture2D(u_image, getCoords(texCoord, vec2(-1.,-1.))).rgb;
+            vec3 c3 = texture2D(u_image, getCoords(texCoord, vec2( 1., 0.))).rgb;
+            vec3 c4 = texture2D(u_image, getCoords(texCoord, vec2( 0., 0.))).rgb;
+            vec3 c5 = texture2D(u_image, getCoords(texCoord, vec2(-1., 0.))).rgb;
+            vec3 c6 = texture2D(u_image, getCoords(texCoord, vec2( 1., 1.))).rgb;
+            vec3 c7 = texture2D(u_image, getCoords(texCoord, vec2( 0., 1.))).rgb;
+            vec3 c8 = texture2D(u_image, getCoords(texCoord, vec2(-1., 1.))).rgb;
+
+            float sum_r = 
+                  c0.r * u_kernel[0] 
+                + c1.r * u_kernel[1]
+                + c2.r * u_kernel[2]
+                + c3.r * u_kernel[3]
+                + c4.r * u_kernel[4]
+                + c5.r * u_kernel[5]
+                + c6.r * u_kernel[6]
+                + c7.r * u_kernel[7]
+                + c8.r * u_kernel[8];
+            
+            float sum_g = 
+                  c0.g * u_kernel[0] 
+                + c1.g * u_kernel[1]
+                + c2.g * u_kernel[2]
+                + c3.g * u_kernel[3]
+                + c4.g * u_kernel[4]
+                + c5.g * u_kernel[5]
+                + c6.g * u_kernel[6]
+                + c7.g * u_kernel[7]
+                + c8.g * u_kernel[8];
+            
+            float sum_b = 
+                  c0.b * u_kernel[0] 
+                + c1.b * u_kernel[1]
+                + c2.b * u_kernel[2]
+                + c3.b * u_kernel[3]
+                + c4.b * u_kernel[4]
+                + c5.b * u_kernel[5]
+                + c6.b * u_kernel[6]
+                + c7.b * u_kernel[7]
+                + c8.b * u_kernel[8];
             
             // Note on reversed implementation:
             // According to https://en.wikipedia.org/wiki/Kernel_(image_processing)#Convolution if the kernel
             // is not symmetric, it should be reversed before computing. This is how it is implemented in 
             // a number of python libraries, and thus how I implemented it here. I find it more intuitive.
 
-            float x = activation(sum);
+            vec3 finalColor = activation(sum_r, sum_g, sum_b);
             
-            gl_FragColor = vec4(x, x, x, x);
+            gl_FragColor = vec4(finalColor, 1.);
 
         } else {
-			// color masking
-            float x = texture2D(u_image, texCoord).a;
-			gl_FragColor = vec4(x, x, x, x) * colorMask;
-            
+			// no color masking as in original neuralpatterns.io
+			gl_FragColor = texture2D(u_image, texCoord);
         }
     }
     `,
@@ -79,15 +110,15 @@ const Shaders = {
     `,
 
     persistentSource: `
-    float cur = texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).a;
-    if (cur != 0.) {
-        gl_FragColor = vec4(cur, cur, cur, cur);
+    vec3 cur = texture2D(u_image, getCoords(texCoord, vec2(0.0, 0.0))).rgb;
+    if (cur.r > 0.0 || cur.g > 0.0 || cur.b > 0.0){
+        gl_FragColor = vec4(cur, 1.0);
         return;
-	}
+    }
     `,
 
     defaultActivationSource: 
-    `float activation(float x) {\n\treturn x;\n}`,
+    `vec3 activation(float r, float g, float b) {\n\treturn vec3(r, g, b);\n}`,
 }
 
 export default Shaders;

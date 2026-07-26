@@ -191,7 +191,7 @@ export default {
     /* display: inline-block; */
     /* min-width: 300px; */
     width: 100%;
-    max-width: 350px;
+    max-width: 372px;
     /* height: auto; */
     margin: 10px;
 

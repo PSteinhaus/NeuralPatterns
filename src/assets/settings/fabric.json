@@ -1,1 +1,26 @@
-{"reset_type":"random","filter":{"0":0.0367945171892643,"1":0.43004563450813293,"2":-0.736802339553833,"3":0.405608206987381,"4":-0.3213873505592346,"5":-0.3188324570655823,"6":-0.45777052640914917,"7":0.4155866205692291,"8":0.4782331585884094},"activation":"float tanh(float x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}\n\nfloat activation(float x) {\n  return tanh(x);\n}","color":"random","persistent":false}
+{
+  "reset_type": "random",
+  "filter": {
+    "0": 0.0367945171892643,
+    "1": 0.43004563450813293,
+    "2": -0.736802339553833,
+    "3": 0.405608206987381,
+    "4": -0.3213873505592346,
+    "5": -0.3188324570655823,
+    "6": -0.45777052640914917,
+    "7": 0.4155866205692291,
+    "8": 0.4782331585884094
+  },
+  "hor_sym": false,
+  "ver_sym": false,
+  "full_sym": false,
+  "activation": "vec3 tanh(vec3 x) {\n  return (exp(2.*x)-1.)/(exp(2.*x)+1.);\n}\n\nfloat interact(float x, float y, float z) {\n  float f = 0.004;\n  return x + ((z - x) - (x - y)) * f;\n}\n\nvec3 activation(float r, float g, float b) {\n  float i_r = interact(r, g, b);\n  float i_g = interact(g, b, r);\n  float i_b = interact(b, r, g);\n  return tanh(vec3(i_r, i_g, i_b));\n}",
+  "color": [
+    1,
+    0.3058823529411765,
+    0.3607843137254902
+  ],
+  "bg_color": "#000000",
+  "persistent": false,
+  "skip_frames": false
+}

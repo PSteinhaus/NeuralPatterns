@@ -1,8 +1,5 @@
 <template>
     <div id="display-settings">
-        <input class='color' id='color' type='color' v-model="hexColor">
-        <label for='color'> Foreground Color</label>
-        <br>
         <input class='color' id='bg-color' type='color' v-model="bgColor">
         <label for='bg-color'> Background Color</label>
         <br>
@@ -26,8 +23,6 @@ export default {
     name: 'DisplaySettings',
     data() {
         return {
-            rgbColor: [0, 0, 0],
-            hexColor: '#000000',
             bgColor: '#000000',
             skip_frames: false,
             persistent: false,
@@ -42,24 +37,16 @@ export default {
     },
 
     mounted() {
-        this.rgbColor = Controller.color;
-        this.hexColor = this.rgbToHex(Controller.color);
     },
 
     methods: {
         randomize() {
-            this.rgbColor = Utils.randomColor();
-            this.hexColor = this.rgbToHex(this.rgbColor);
-            this.changeColor();
         },
 
         changeColor() {
-            Controller.setColor(this.hexToRgb(this.hexColor));
         },
 
         setColor(col) {
-            this.rgbColor = col;
-            this.hexColor = this.rgbToHex(col);
         },
 
         hexToRgb(hex) {
@@ -92,9 +79,6 @@ export default {
         }
     },
     watch: {
-        hexColor() {
-            this.changeColor()
-        },
         bgColor() {
             document.body.style["background-color"] = this.bgColor;
             Controller.bgColor = this.bgColor;

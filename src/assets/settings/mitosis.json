@@ -1,1 +1,26 @@
-{"reset_type":"random","filter":{"0":-0.9390000104904175,"1":0.8799999952316284,"2":-0.9390000104904175,"3":0.8799999952316284,"4":0.4000000059604645,"5":0.8799999952316284,"6":-0.9390000104904175,"7":0.8799999952316284,"8":-0.9390000104904175},"hor_sym":true,"ver_sym":true,"full_sym":true,"activation":"// an inverted gaussian function, \n// where f(0) = 0. \n// Graph: https://www.desmos.com/calculator/torawryxnq\n\nfloat activation(float x) {\n  return -1./(0.9*pow(x, 2.)+1.)+1.;\n}\t\t","color":[0,1,0.25098039215686274],"bg_color":"#000e2e","persistent":false,"skip_frames":true}
+{
+  "reset_type": "random",
+  "filter": {
+    "0": -0.9469999799728394,
+    "1": 0.8799999952316284,
+    "2": -0.9469999799728394,
+    "3": 0.8799999952316284,
+    "4": 0.4000000059604645,
+    "5": 0.8799999952316284,
+    "6": -0.9469999799728394,
+    "7": 0.8799999952316284,
+    "8": -0.9469999799728394
+  },
+  "hor_sym": true,
+  "ver_sym": true,
+  "full_sym": true,
+  "activation": "// an inverted gaussian function, \n// where f(0) = 0. \n// Graph: https://www.desmos.com/calculator/torawryxnq\n\nfloat inv_g(float x) {\n  return -1./(0.9*pow(x, 2.)+1.)+1.;\n}\n\nfloat interact(float x, float y, float z) {\n  float f = 0.08;\n  return x + abs(y * z) * f;\n}\n\nvec3 activation(float r, float g, float b) {\n  float i_r = interact(r, g, b);\n  float i_g = interact(g, b, r);\n  float i_b = interact(b, r, g);\n  r = inv_g(i_r);\n  g = inv_g(i_g);\n  b = inv_g(i_b);\n  return vec3(r, g, b);\n}\n",
+  "color": [
+    0,
+    1,
+    0.25098039215686274
+  ],
+  "bg_color": "#000e2e",
+  "persistent": false,
+  "skip_frames": true
+}
