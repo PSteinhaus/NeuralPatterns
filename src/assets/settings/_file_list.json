@@ -4,6 +4,10 @@
         "path": "gameoflife.json"
     },
     {
+        "name": "Philipp's Game of Rockets", 
+        "path": "gameofrockets.json"
+    },
+    {
         "name": "Wolfram's Rule 30",
         "path": "rule30.json"
     },

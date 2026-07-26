@@ -10,12 +10,54 @@ class Renderer {
 		
 		this.gl = canvas.getContext("webgl");
 
-		this.setBrush(5, 1);
+		this.setBrush(1, 1);
 		this.activationSource = '';
 		this.persistent = false;
 		this.skip_frames = false;
 
 		this.frame_time = 1000/FPS;
+
+		this.setupKeyboardListeners();
+	}
+
+	setupKeyboardListeners() {
+		// Bind to document so it works regardless of focus
+		document.addEventListener('keydown', (e) => {
+			// Check if key is a digit 1-4
+			if (e.key >= '1' && e.key <= '7') {
+				const brushIndex = parseInt(e.key);
+				this.setActiveBrush(brushIndex);
+			}
+		});
+	}
+
+	setActiveBrush(index) {
+		// Map 1-4 to different brush arrays
+		switch(index) {
+			case 1:
+				this.currentBrushArray = this.brush_arr_1;
+				break;
+			case 2:
+				this.currentBrushArray = this.brush_arr_r;
+				break;
+			case 3:
+				this.currentBrushArray = this.brush_arr_g;
+				break;
+			case 4:
+				this.currentBrushArray = this.brush_arr_b;
+				break;
+			case 5:
+				this.currentBrushArray = this.brush_arr_c;
+				break;
+			case 6:
+				this.currentBrushArray = this.brush_arr_m;
+				break;
+			case 7:
+				this.currentBrushArray = this.brush_arr_y;
+				break;
+			default:
+				return;
+		}
 	}
 
 	initGeometry() {
@@ -254,11 +296,46 @@ class Renderer {
 	setBrush(size) {
 		this.brush_size = size;
 		let arr_size = size*size*4;
+		this.brush_arr_r = new Uint8Array(arr_size);
+		this.brush_arr_g = new Uint8Array(arr_size);
+		this.brush_arr_b = new Uint8Array(arr_size);
+		this.brush_arr_c = new Uint8Array(arr_size); // cyan
+		this.brush_arr_m = new Uint8Array(arr_size); // magenta
+		this.brush_arr_y = new Uint8Array(arr_size); // yellow
 		this.brush_arr_1 = new Uint8Array(arr_size);
 		this.brush_arr_0 = new Uint8Array(arr_size);
-		for (let i=0; i<arr_size; i++) {
-			this.brush_arr_1[i] = 255;
-			this.brush_arr_0[i] = 0;
+		for (let i=0; i<arr_size/4; i++) {
+			for (let j=0; j<4; j++) {
+				if (j % 4 == 3) {   // alpha channel
+					this.brush_arr_1[4*i + j] = 255;
+					this.brush_arr_0[4*i + j] = 255;
+					this.brush_arr_r[4*i + j] = 255;
+					this.brush_arr_g[4*i + j] = 255;
+					this.brush_arr_b[4*i + j] = 255;
+					this.brush_arr_c[4*i + j] = 255;
+					this.brush_arr_m[4*i + j] = 255;
+					this.brush_arr_y[4*i + j] = 255;
+				}
+				this.brush_arr_1[4*i + j] = 255;
+				this.brush_arr_0[4*i + j] = 0;
+				this.brush_arr_r[4*i + j] = 0;
+				this.brush_arr_g[4*i + j] = 0;
+				this.brush_arr_b[4*i + j] = 0;
+				this.brush_arr_c[4*i + j] = 0;
+				this.brush_arr_m[4*i + j] = 0;
+				this.brush_arr_y[4*i + j] = 0;
+			}
+
+			this.brush_arr_r[4*i + 0] = 255;
+			this.brush_arr_g[4*i + 1] = 255;
+			this.brush_arr_b[4*i + 2] = 255;
+
+			this.brush_arr_c[4*i + 1] = 255;
+			this.brush_arr_c[4*i + 2] = 255;
+			this.brush_arr_m[4*i + 0] = 255;
+			this.brush_arr_m[4*i + 2] = 255;
+			this.brush_arr_y[4*i + 0] = 255;
+			this.brush_arr_y[4*i + 1] = 255;
 		}
 	}
 
@@ -334,7 +411,7 @@ class Renderer {
 		x = x - Math.floor(this.brush_size/2); // center brush
 		y = y - Math.floor(this.brush_size/2);
 
-		let brush_arr = fill_ones ? this.brush_arr_1 : this.brush_arr_0;
+		let brush_arr = fill_ones ? this.currentBrushArray : this.brush_arr_0;
 
 		gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, this.brush_size, this.brush_size,
                      gl.RGBA, gl.UNSIGNED_BYTE,

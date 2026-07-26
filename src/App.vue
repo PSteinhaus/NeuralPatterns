@@ -37,7 +37,7 @@ export default {
 		FooterMessage
 	},
 	mounted() {
-		document.title = "Neural Patterns";
+		document.title = "Neural Patterns (RGB)";
 	},
 	data() {
 		return {
